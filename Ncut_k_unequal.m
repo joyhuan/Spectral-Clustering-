@@ -1,25 +1,25 @@
 % In this test, we verify the CPQR by approximating NCut for arbitraty
-% k with unequal sized-clusters 
+% k with equal sized-clusters 
 clear
 close all
 clc
 rng(1)
-k = 3;
-% m =  [70 80 90 100 110 120 130];
-%170 200 230 280
-m = [100 120 140 ]; 
-% m = [100 100]; 
+k = 4;
+m = [120 140 170 210]; 
 n = sum(m);
 noise = 0;
+b= 5;
+Na = 20; 
+success = zeros(Na,1);
+a_range = linspace(5,100,Na);
+rel_error = zeros(Na,1);
+trials = 9;
+a_count = 0;
+for a = a_range
+        a_count = a_count+1;
 
-% a = 90;
-% b= 1;               
-
-a = 60;
-b= 15;
-trials = 10;
-for t = 1:trials
-    t
+    for t = 1:trials
+        t
             p = a*log(m(1))/m(1);
             q = b*log(m(1))/m(1);
            
@@ -45,11 +45,7 @@ for t = 1:trials
                         An = An + An';
                         A(A==0) = An(A==0);
                     end
-                    
-%                     vol = sum(diag(A)); 
-%                     D = diag(diag(A));
-                     
-                   
+   
                     A = A - diag(diag(A));
                    
                     d = sum(A);
@@ -58,28 +54,29 @@ for t = 1:trials
                     end
                 end
                 
-                Ds = diag(sqrt(1./d));
-                Lhat = Ds*A*Ds;
-   
-                [Vhat e] = eigs(Lhat,k);
+%                 Ds = diag(sqrt(1./d));
+%                 Lhat = Ds*A*Ds;
+                  [Vhat e] = eigs(A,k);
+%                 [Vhat e] = eigs(Lhat,k);
                 
-                if norm(Vhat'*Vhat - eye(k)) > 1e-12
-                    disp('eigs issue');
-                    [Vhat e] = eig(Lhat);
-                    Vhat = Vhat(:,n-k+1:end);
-                end
+%                 if norm(Vhat'*Vhat - eye(k)) > 1e-12
+%                     disp('eigs issue');
+%                     [Vhat e] = eig(Lhat);
+%                     Vhat = Vhat(:,n-k+1:end);
+%                 end
                 
                 
                 [Vloc piv] = lrcol_rand(Vhat,k,1,5);
                 [throw, set] = max(abs(Vloc'));
-                sucess = 0; 
+%                 sucess = 0; 
                 if verify_true(set,truth)
-                    sucess = 1; 
+%                     sucess = 1;
+                    success(a_count) = success(a_count)+1;
                 end
                  
                 % Now we have a similar matrix A, next build the graph
                 % Laplacian matrix based on L = D - A; 
-                vol = sum(d);
+%                 vol = sum(d);
                 D = diag(d);
                 L = D-A; 
                 [V,E] = eig(L);
@@ -92,17 +89,14 @@ for t = 1:trials
                 % format.
                 Lrw = D^(-1)*L;
                 [Vrw,Erw] = eig(Lrw);
-                H = Vrw(:,1:k);
+                H = Vrw(:,1:k); 
                 H = D^(-1/2)*H; 
-                
-                check1 = H'*H - eye(k);
-                check2 = H(:,2)'*D^(-1/2)*D*D^(-1/2)*H(:,2);
                 T = D^(1/2)*H; 
                 sanitiyCheck = T'*T - eye(k); 
                 obj = trace(T'*D^(-1/2)*L*D^(-1/2)*T); 
                 
                 % our algo
-                vol = [sum(d(1:100));sum(d(101:220));sum(d(221:360))];
+                vol = [sum(d(1:120));sum(d(121:260));sum(d(261:430));sum(d(431:640))];
             
                 H_our = zeros(n,k);
                 for i= 1:n
@@ -115,21 +109,12 @@ for t = 1:trials
                 T_our = D^(1/2)*H_our; 
                 sanitiyCheck_our = T_our'*T_our - eye(k); 
                 obj_our = trace(T_our'*D^(-1/2)*L*D^(-1/2)*T_our); 
-         FINAL = (obj-obj_our)/obj
+                rel_error(a_count) = rel_error(a_count)+(obj - obj_our)/obj;
+            end
     end
 end
-% success = success/trials;
-% success2 = success2/trials;
-% fiedler = fiedler/trials;
-% qr_kmeans = qr_kmeans/trials;
-% comp_true = comp_true/trials;
-% MLE = MLE/trials;
-% theory(theory<1) = 0;
-% theory(theory>1) = 1;
-% 
-% save backup_block_test_unequal.mat a_grid b_grid success fiedler success2 qr_kmeans theory qr_kmeans p_grid q_grid k m n trials comp_true MLE
-% fname = [num2str(k) '_block_test_unequal.mat'];
-% save(fname,'a_grid','b_grid','success','fiedler','comp_true','MLE',...
-%     'success2','qr_kmeans','theory','qr_kmeans','p_grid','q_grid','k','m','n','trials');
-save testEasy.mat k m n L Lrw A 
+rel_error = rel_error/trials; 
+figure
+plot(a_range/b,rel_error); 
+save NCut_k_unequal4.mat k m n L A rel_error idx success set truth V E Vrw Erw vol 
 fname = [num2str(k) '_block_test_sherlock.mat'];

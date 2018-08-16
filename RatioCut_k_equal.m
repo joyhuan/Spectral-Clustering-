@@ -13,6 +13,7 @@ success = zeros(Na,1);
 % a = 90;
 b= 5;
 a_range = linspace(5,100,Na);
+rel_error = zeros(Na,1);
 trials = 9;
 a_count = 0;
 for a = a_range
@@ -65,7 +66,7 @@ for a = a_range
 %                 Lhat = Ds*A*Ds;
 
                 
-                [Vhat e] = eigs(L,k);
+                [Vhat e] = eigs(A,k);
                 
 %                 if norm(Vhat'*Vhat - eye(k)) > 1e-12
 %                     disp('eigs issue');
@@ -76,13 +77,12 @@ for a = a_range
                 
                 [Vloc piv] = lrcol_rand(Vhat,k,1,5);
                 [throw, set] = max(abs(Vloc'));
-                sucess = 0; 
+%                 sucess = 0; 
                 if verify_true(set,truth)
 %                     sucess = 1; 
                     success(a_count,1) = success(a_count,1)+1;
                 end
                 
-             end 
        
                 % Now we have a similar matrix A, next build the graph
                 % Laplacian matrix based on L = D - A; 
@@ -131,9 +131,14 @@ for a = a_range
                 scheck2= Hcpqr' * Hcpqr - eye(k,k);
                 trace1 = trace(H'*L*H);
                 trace2 = trace(Hcpqr'*L*Hcpqr);
-                FINAL = (trace1 - trace2)/trace1;
-    end 
-end 
-    
-save testEasy.mat k m n L A 
+                rel_error(a_count) = rel_error(a_count)+(trace1 - trace2)/trace1;
+      end 
+   end 
+end
+ 
+rel_error = rel_error/trials; 
+figure
+plot(a_range/b,rel_error); 
+
+save RatioCut_k_equal.mat k m n L A rel_error idx success set truth V E Vrw Erw vol 
 fname = [num2str(k) '_block_test_sherlock.mat'];

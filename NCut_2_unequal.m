@@ -107,18 +107,8 @@ for t = 1:trials
                
     end
 end
-% success = success/trials;
-% success2 = success2/trials;
-% fiedler = fiedler/trials;
-% qr_kmeans = qr_kmeans/trials;
-% comp_true = comp_true/trials;
-% MLE = MLE/trials;
-% theory(theory<1) = 0;
-% theory(theory>1) = 1;
-% 
-% save backup_block_test_unequal.mat a_grid b_grid success fiedler success2 qr_kmeans theory qr_kmeans p_grid q_grid k m n trials comp_true MLE
-% fname = [num2str(k) '_block_test_unequal.mat'];
-% save(fname,'a_grid','b_grid','success','fiedler','comp_true','MLE',...
-%     'success2','qr_kmeans','theory','qr_kmeans','p_grid','q_grid','k','m','n','trials');
+rel_error = rel_error/trials; 
+figure
+plot(rel_error, a_range/b); 
 save testEasy.mat k m n L Lrw A 
 fname = [num2str(k) '_block_test_sherlock.mat'];
