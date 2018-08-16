@@ -94,12 +94,14 @@ for a = a_range
 %                 H = Vrw(:,1:k); 
 %                 H = D^(-1/2)*H; 
 %                 T = D^(1/2)*H; 
+                g = (:,2); 
+                
                 T = Vsym(:,1:k);
                 sanitiyCheck = T'*T - eye(k); 
                 obj = trace(T'*D^(-1/2)*L*D^(-1/2)*T); 
                 
                 % our algo
-                vol = [sum(d(1:100));sum(d(101:200));sum(d(201:300))];
+                vol = [sum(d(1:100));sum(d(101:200))];
             
                 H_our = zeros(n,k);
                 for i= 1:n
@@ -119,5 +121,5 @@ end
 rel_error = rel_error/trials; 
 figure
 plot(a_range/b,rel_error); 
-save NCut_sym_k_equal.mat k m n L A rel_error idx success set truth V E 
+save NCut_sym_2_equal.mat k m n L A rel_error idx success set truth V E 
 fname = [num2str(k) '_block_test_sherlock.mat'];

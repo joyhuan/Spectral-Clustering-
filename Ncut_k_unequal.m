@@ -87,11 +87,14 @@ for a = a_range
               
                 % Normalize the graph Laplacian with the random walk
                 % format.
-                Lrw = D^(-1)*L;
-                [Vrw,Erw] = eig(Lrw);
-                H = Vrw(:,1:k); 
-                H = D^(-1/2)*H; 
-                T = D^(1/2)*H; 
+                 Lsym = D^(-1/2)*L*D^(-1/2); 
+                [Vsym,Esym] = eig(Lsym);
+%                 Lrw = D^(-1)*L;
+%                 [Vrw,Erw] = eig(Lrw);
+%                 H = Vrw(:,1:k); 
+%                 H = D^(-1/2)*H; 
+%                 T = D^(1/2)*H; 
+                T = Vsym(:,1:k);
                 sanitiyCheck = T'*T - eye(k); 
                 obj = trace(T'*D^(-1/2)*L*D^(-1/2)*T); 
                 
@@ -116,5 +119,5 @@ end
 rel_error = rel_error/trials; 
 figure
 plot(a_range/b,rel_error); 
-save NCut_k_unequal4.mat k m n L A rel_error idx success set truth V E Vrw Erw vol 
+save NCut_sym_k_unequal4.mat k m n L A rel_error idx success set truth V E vol 
 fname = [num2str(k) '_block_test_sherlock.mat'];
